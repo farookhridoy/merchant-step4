@@ -1,11 +1,17 @@
 @extends('partials.master')
 @section('styles')
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.css">
-<link rel="stylesheet" type="text/css" href="http://keith-wood.name/css/jquery.signature.css">
 <style>
+    
     .kbw-signature {
+        display: inline-block;
+        border: 1px solid #a0a0a0;
+        -ms-touch-action: none;
         width: 100%;
         height: 200px;
+    }
+    .kbw-signature-disabled {
+        opacity: 0.35;
     }
 </style>
 @endsection
@@ -259,8 +265,9 @@ if (Session::has('partner')) {
 
 @endsection
 @section('scripts')
+
 <script src="{{asset('assets')}}/js/jquery.signature.js"></script>
-<script type="text/javascript">
+<script>
 
     var sig = $('#sig').signature({syncField: '#signature', syncFormat: 'PNG'});
     $('#clear').click(function (e) {

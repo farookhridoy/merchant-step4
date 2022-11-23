@@ -1,52 +1,8 @@
-/*! http://keith-wood.name/signature.html
-	Signature plugin for jQuery UI v1.2.1.
-	Requires excanvas.js in IE.
-	Written by Keith Wood (wood.keith{at}optusnet.com.au) April 2012.
-	Available under the MIT (http://keith-wood.name/licence.html) license. 
-	Please attribute the author if you use it. */
 
-	/* globals G_vmlCanvasManager */
-
-(function($) { // Hide scope, no $ conflict
+(function($) { 
 	'use strict';
 
-	/** Signature capture and display.
-		<p>Depends on <code>jquery.ui.widget</code>, <code>jquery.ui.mouse</code>.</p>
-		<p>Expects HTML like:</p>
-		<pre>&lt;div>&lt;/div></pre>
-		@namespace Signature
-		@augments $.Widget
-		@example $(selector).signature()
-		$(selector).signature({color: 'blue', guideline: true}) */
 		var signatureOverrides = {
-
-		/** Be notified when a signature changes.
-			@callback SignatureChange
-			@global
-			@this Signature
-			@example change: function() {
-  console.log('Signature changed');
-} */
-
-		/** Global defaults for signature.
-			@memberof Signature
-			@property {number} [distance=0] The minimum distance to start a drag.
-			@property {string} [background='#fff'] The background colour.
-			@property {string} [color='#000'] The colour of the signature.
-			@property {number} [thickness=2] The thickness of the lines.
-			@property {boolean} [guideline=false] <code>true</code> to add a guideline.
-			@property {string} [guidelineColor='#a0a0a0'] The guideline colour.
-			@property {number} [guidelineOffset=50] The guideline offset (pixels) from the bottom.
-			@property {number} [guidelineIndex=10] The guideline indent (pixels) from the edges.
-			@property {string} [notAvailable='Your browser doesn\'t support signing']
-								The error message to show when no canvas is available.
-			@property {number} [scale=1] A scaling factor for rendering the signature (only applies to redraws).
-			@property {string|Element|jQuery} [syncField=null] The selector, DOM element, or jQuery object
-								for a field to automatically synchronise with a text version of the signature.
-			@property {string} [syncFormat='JSON'] The output representation: 'JSON', 'SVG', 'PNG', 'JPEG'.
-			@property {boolean} [svgStyles=false] <code>true</code> to use the <code>style</code> attribute in SVG.
-			@property {SignatureChange} [change=null] A callback triggered when the signature changes.
-			@example $.extend($.kbw.signature.options, {guideline: true}) */
 			options: {
 				distance: 0,
 				background: '#fff',
@@ -64,9 +20,6 @@
 				change: null
 			},
 
-		/** Initialise a new signature area.
-			@memberof Signature
-			@private */
 			_create: function() {
 				this.element.addClass(this.widgetFullName || this.widgetBaseClass);
 				try {
@@ -86,17 +39,13 @@
 				if (G_vmlCanvasManager) { // Requires excanvas.js
 					G_vmlCanvasManager.initElement(this.canvas);
 				}
-				/* jshint +W106 */
+				
 			}
 			this.ctx = this.canvas.getContext('2d');
 			this._refresh(true);
 			this._mouseInit();
 		},
 
-		/** Refresh the appearance of the signature area.
-			@memberof Signature
-			@private
-			@param {boolean} init <code>true</code> if initialising. */
 			_refresh: function(init) {
 				if (this.resize) {
 					var parent = $(this.canvas);
@@ -110,10 +59,7 @@
 				this.clear(init);
 			},
 
-		/** Clear the signature area.
-			@memberof Signature
-			@param {boolean} init <code>true</code> if initialising - internal use only.
-			@example $(selector).signature('clear') */
+		
 			clear: function(init) {
 				if (this.options.disabled) {
 					return;
@@ -138,10 +84,7 @@
 				}
 			},
 
-		/** Synchronise changes and trigger a change event.
-			@memberof Signature
-			@private
-			@param {Event} event The triggering event. */
+		
 			_changed: function(event) {
 				if (this.options.syncField) {
 					var output = '';
@@ -163,10 +106,7 @@
 				this._trigger('change', event, {});
 			},
 
-		/** Refresh the signature when options change.
-			@memberof Signature
-			@private
-			@param {object} options The new option values. */
+		
 			_setOptions: function(/* options */) {
 				if (this._superApply) {
 				this._superApply(arguments); // Base widget handling
@@ -187,19 +127,11 @@
 			}
 		},
 
-		/** Determine if dragging can start.
-			@memberof Signature
-			@private
-			@param {Event} event The triggering mouse event.
-			@return {boolean} <code>true</code> if allowed, <code>false</code> if not */
+		
 			_mouseCapture: function(/* event */) {
 				return !this.options.disabled;
 			},
 
-		/** Start a new line.
-			@memberof Signature
-			@private
-			@param {Event} event The triggering mouse event. */
 			_mouseStart: function(event) {
 				this.offset = this.element.offset();
 				this.offset.left -= document.documentElement.scrollLeft || document.body.scrollLeft;
@@ -210,10 +142,7 @@
 				this.lines.push(this.curLine);
 			},
 
-		/** Track the mouse.
-			@memberof Signature
-			@private
-			@param {Event} event The triggering mouse event. */
+		
 			_mouseDrag: function(event) {
 				var point = [this._round(event.clientX - this.offset.left),
 				this._round(event.clientY - this.offset.top)];
@@ -225,10 +154,7 @@
 				this.lastPoint = point;
 			},
 
-		/** End a line.
-			@memberof Signature
-			@private
-			@param {Event} event The triggering mouse event. */
+		
 			_mouseStop: function(event) {
 				if (this.curLine.length === 1) {
 					event.clientY += this.options.thickness;
@@ -239,19 +165,12 @@
 				this._changed(event);
 			},
 
-		/** Round to two decimal points.
-			@memberof Signature
-			@private
-			@param {number} value The value to round.
-			@return {number} The rounded value. */
+		
 			_round: function(value) {
 				return Math.round(value * 100) / 100;
 			},
 
-		/** Convert the captured lines to JSON text.
-			@memberof Signature
-			@return {string} The JSON text version of the lines.
-			@example var json = $(selector).signature('toJSON') */
+		
 			toJSON: function() {
 				return '{"lines":[' + $.map(this.lines, function(line) {
 					return '[' + $.map(line, function(point) {
@@ -260,10 +179,7 @@
 				}) + ']}';
 			},
 
-		/** Convert the captured lines to SVG text.
-			@memberof Signature
-			@return {string} The SVG text version of the lines.
-			@example var svg = $(selector).signature('toSVG') */
+		
 			toSVG: function() {
 				var attrs1 = (this.options.svgStyles ? 'style="fill: ' + this.options.background + ';"' :
 					'fill="' + this.options.background + '"');
@@ -271,8 +187,8 @@
 					'style="fill: none; stroke: ' + this.options.color + '; stroke-width: ' + this.options.thickness + ';"' :
 					'fill="none" stroke="' + this.options.color + '" stroke-width="' + this.options.thickness + '"');
 				return '<?xml version="1.0"?>\n<!DOCTYPE svg PUBLIC ' +
-				'"-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-				'<svg xmlns="http://www.w3.org/2000/svg" width="15cm" height="15cm">\n' +
+				'"-//W3C//DTD SVG 1.1//EN" "https://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+				'<svg xmlns="https://www.w3.org/2000/svg" width="15cm" height="15cm">\n' +
 				'	<g ' + attrs1 + '>\n' +
 				'		<rect x="0" y="0" width="' + this.canvas.width + '" height="' + this.canvas.height + '"/>\n' +
 				'		<g ' + attrs2 +	'>\n'+
@@ -283,22 +199,12 @@
 				'		</g>\n	</g>\n</svg>\n';
 			},
 			
-		/** Convert the captured lines to an image encoded in a <code>data:</code> URL.
-			@memberof Signature
-			@param {string} [type='image/png'] The MIME type of the image.
-			@param {number} [quality=0.92] The image quality, between 0 and 1.
-			@return {string} The signature as a data: URL image.
-			@example var data = $(selector).signature('toDataURL', 'image/jpeg') */
+		
 			toDataURL: function(type, quality) {
 				return this.canvas.toDataURL(type, quality);
 			},
 
-		/** Draw a signature from its JSON or SVG description or <code>data:</code> URL.
-			<p>Note that drawing a <code>data:</code> URL does not reconstruct the internal representation!</p>
-			@memberof Signature
-			@param {object|string} sig An object with attribute <code>lines</code> being an array of arrays of points
-							or the text version of the JSON or SVG or a <code>data:</code> URL containing an image.
-							@example $(selector).signature('draw', sigAsJSON) */
+		
 							draw: function(sig) {
 								if (this.options.disabled) {
 									return;
@@ -314,12 +220,7 @@
 			this._changed();
 		},
 
-		/** Draw a signature from its JSON description.
-			@memberof Signature
-			@private
-			@param {object|string} sig An object with attribute <code>lines</code> being an array of arrays of points
-							or the text version of the JSON.
-							@param {number} scale A scaling factor. */
+		
 							_drawJSON: function(sig, scale) {
 								if (typeof sig === 'string') {
 									sig = $.parseJSON(sig);
@@ -335,11 +236,7 @@
 								});
 							},
 
-		/** Draw a signature from its SVG description.
-			@memberof Signature
-			@private
-			@param {string} sig The text version of the SVG.
-			@param {number} scale A scaling factor. */
+		
 			_drawSVG: function(sig, scale) {
 				var lines = this.lines = [];
 				$(sig).find('polyline').each(function() {
@@ -360,12 +257,7 @@
 				});
 			},
 
-		/** Draw a signature from its <code>data:</code> URL.
-			<p>Note that this does not reconstruct the internal representation!</p>
-			@memberof Signature
-			@private
-			@param {string} sig The <code>data:</code> URL containing an image.
-			@param {number} scale A scaling factor. */
+		
 			_drawDataURL: function(sig, scale) {
 				var image = new Image();
 				var context = this.ctx;
@@ -375,17 +267,10 @@
 				image.src = sig;
 			},
 
-		/** Determine whether or not any drawing has occurred.
-			@memberof Signature
-			@return {boolean} <code>true</code> if not signed, <code>false</code> if signed.
-			@example if ($(selector).signature('isEmpty')) ... */
+		
 			isEmpty: function() {
 				return this.lines.length === 0;
 			},
-
-		/** Remove the signature functionality.
-			@memberof Signature
-			@private */
 			_destroy: function() {
 				this.element.removeClass(this.widgetFullName || this.widgetBaseClass);
 				$(this.canvas).remove();
